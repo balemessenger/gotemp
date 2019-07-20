@@ -1,0 +1,5 @@
+.idea
+vendor
+build/release
+build/debug
+build/proto

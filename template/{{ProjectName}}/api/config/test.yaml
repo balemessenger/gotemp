@@ -1,0 +1,38 @@
+core:
+  user_work_pool_size: 1000
+  group_work_pool_size: 100
+postgres:
+  host: "127.0.0.1"
+  port: 5432
+  db: "nasim"
+  user: "nasim"
+  pass: "nasim"
+  batch_count: 5
+kafka:
+  bootstrap_servers: "127.0.0.1"
+  group_id: "random"
+  auto_offset_reset: "earliest"
+  topic: "{{ProjectName}}"
+firebase:
+  url: "http://127.0.0.1:8070/fcm/send"
+  token: "test"
+  timeout: 10s
+  max_connection: 10000
+  work_pool_size: 10000
+apple:
+  enable: false
+  key: 456367
+  bundle_id: "ai.nasim.bale"
+  path: ""
+  password: ""
+prometheus:
+  port: 8080
+log:
+  level: debug
+endpoints:
+  grpc:
+    address: "127.0.0.1:5050"
+  http:
+    address: ":5050"
+    user: "test"
+    pass: "test"
