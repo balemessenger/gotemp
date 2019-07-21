@@ -61,14 +61,18 @@ spelling:
 init:
 	@echo "Running $@"
 	@GO111MODULE=on go mod init
+
+vendor:
+	@echo "Running $@"
 	@GO111MODULE=on go mod vendor
 
+build:
+	@echo "Running $@"
+	@GO111MODULE=on go build main.go
+
 test:
-	@echo "Running unit tests"
-	# @go test -count=1 pkg/
-	# @go test -count=1 internal/
-	# @go test -count=1 api/
-	@go test -count=1 test/
+	@echo "Running unit tests $(method)"
+	@GO111MODULE=on ${PWD}/scripts/test.sh $(method)
 
 coverage: build
 	@echo "Running all coverage"
@@ -88,7 +92,7 @@ deploy: docker
 
 proto:
 	@echo "Running $@"
-	@(env bash $(PWD)/scripts/genproto.sh)
+	@(env bash $(PWD)/scripts/genproto.sh $(arg))
 
 clean:
 	@echo "Cleaning up all the generated files"
@@ -96,4 +100,4 @@ clean:
 	@rm -rvf build/debug
 	@rm -rvf build/release
 
-.PHONY: all test clean
+.PHONY: all test clean vendor build

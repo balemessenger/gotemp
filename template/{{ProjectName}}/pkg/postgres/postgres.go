@@ -8,41 +8,41 @@ import (
 	"github.com/jackc/pgx"
 )
 
-type PostgresDatabase struct {
+type Database struct {
 	PostgresPool *pgx.ConnPool
 }
 
 var (
 	once             sync.Once
-	postgresDatabase *PostgresDatabase
+	postgresDatabase *Database
 )
 
-func GetPostgresDB() *PostgresDatabase {
+func GetPostgres() *Database {
 	once.Do(func() {
 		postgresDatabase = New()
 	})
 	return postgresDatabase
 }
 
-func New() *PostgresDatabase {
-	return &PostgresDatabase{}
+func New() *Database {
+	return &Database{}
 }
 
-func (p *PostgresDatabase) Initialize() *pgx.ConnPool {
+func (p *Database) Initialize(host string, user string, pass string, db string) *pgx.ConnPool {
 	var err error
 	connPoolConfig := pgx.ConnPoolConfig{
 		ConnConfig: pgx.ConnConfig{
-			Host:     pkg.GetConfig().Conf.Postgres.Host,
-			User:     pkg.GetConfig().Conf.Postgres.User,
-			Password: pkg.GetConfig().Conf.Postgres.Pass,
-			Database: pkg.GetConfig().Conf.Postgres.DB,
+			Host:     host,
+			User:     user,
+			Password: pass,
+			Database: db,
 		},
 		MaxConnections: 10,
 	}
 
 	postgresPool, err := pgx.NewConnPool(connPoolConfig)
 	if err != nil {
-		pkg.GetLog().Logger.Error("Unable to create connection pool", "error", err)
+		pkg.GetLog().Error("Unable to create connection pool", "error", err)
 		os.Exit(1)
 	}
 	p.PostgresPool = postgresPool

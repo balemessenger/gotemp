@@ -6,6 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestA(t *testing.T) {
+func TestExample(t *testing.T) {
 	assert.Equal(t, 1, 1)
 }

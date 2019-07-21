@@ -1,4 +1,8 @@
 {
     "ProjectName": "",
-    "Description": ""
+    "Description": "",
+    "Postgres" : true,
+    "Kafka" : true,
+    "Grpc" : true,
+    "Http" : true
 }

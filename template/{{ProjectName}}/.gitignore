@@ -2,4 +2,4 @@
 vendor
 build/release
 build/debug
-build/proto
+build/_proto

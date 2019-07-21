@@ -1,6 +1,6 @@
 core:
-  user_work_pool_size: 1000
-  group_work_pool_size: 100
+  mode: "release" # release, debug, test
+{{ if Postgres }}
 postgres:
   host: "192.168.32.110"
   port: 5432
@@ -8,30 +8,23 @@ postgres:
   user: "nasim"
   pass: "nasim"
   batch_count: 5
+{{ end }}
+{{ if Kafka }}
 kafka:
   bootstrap_servers: "192.168.32.110"
   group_id: "random"
   auto_offset_reset: "latest"
   topic: "{{ProjectName}}"
-firebase:
-  url: "http://127.0.0.1:8070/fcm/send"
-  token: "test"
-  timeout: 10s
-  max_connection: 10000
-  work_pool_size: 10000
-apple:
-  enable: false
-  key: 456367
-  bundle_id: "ai.nasim.bale"
-  path: ""
-  password: ""
+{{ end }}
 prometheus:
   port: 8080
 log:
   level: debug
 endpoints:
+ {{ if Grpc }}
   grpc:
     address: "127.0.0.1:5050"
+  {{ end }}
   http:
     address: ":4040"
     user: "test"

@@ -35,6 +35,6 @@ func (Prometheus) runPrometheusHttpServer(port int) {
 	http.Handle("/metrics", promhttp.Handler())
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
-		GetLog().Logger.Error("Failed to listen prometheus server: ", err)
+		GetLog().Error("Failed to listen prometheus server: ", err)
 	}
 }

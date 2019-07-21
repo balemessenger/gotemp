@@ -16,6 +16,7 @@ var (
 )
 
 type Metrics struct {
+	*Measure
 	TotalPushDurations prometheus.Summary
 	ErrorCount         prometheus.Counter
 }
@@ -30,6 +31,7 @@ func GetMetrics() *Metrics {
 
 func NewMetrics() *Metrics {
 	return &Metrics{
+		Measure: NewMeasure(),
 		TotalPushDurations: prometheus.NewSummary(
 			prometheus.SummaryOpts{
 				Namespace:  namespace,
