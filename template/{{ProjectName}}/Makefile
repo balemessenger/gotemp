@@ -35,6 +35,7 @@ fmt:
 	@GO111MODULE=on gofmt -w -d cmd/
 	@GO111MODULE=on gofmt -w -d internal/
 	@GO111MODULE=on gofmt -w -d pkg/
+	@GO111MODULE=on gofmt -w -d test/
 
 lint:
 	@echo "Running $@"
@@ -68,9 +69,9 @@ vendor:
 
 build:
 	@echo "Running $@"
-	@GO111MODULE=on go build main.go
+	@GO111MODULE=on ${PWD}/scripts/build.sh release
 
-test:
+test: fmt
 	@echo "Running unit tests $(method)"
 	@GO111MODULE=on ${PWD}/scripts/test.sh $(method)
 
@@ -78,11 +79,11 @@ coverage: build
 	@echo "Running all coverage"
 	@GO111MODULE=on CGO_ENABLED=0 go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
-run:
+run: fmt
 	@echo "Running $@"
 	@GO111MODULE=on go run main.go
 
-docker: test fmt
+docker:
 	@echo "Running $@"
 	@(env bash $(PWD)/scripts/docker.sh)
 

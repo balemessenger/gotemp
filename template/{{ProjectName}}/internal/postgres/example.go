@@ -6,34 +6,35 @@ import (
 )
 
 type ExamplePostgresRepo struct {
+	log          *pkg.Logger
 	PostgresPool *pgx.ConnPool
 }
 
-func NewExampleRepo(PostgresPool *pgx.ConnPool) *ExamplePostgresRepo {
-	return &ExamplePostgresRepo{PostgresPool}
+func NewExampleRepo(log *pkg.Logger, PostgresPool *pgx.ConnPool) *ExamplePostgresRepo {
+	return &ExamplePostgresRepo{log, PostgresPool}
 }
 
-func (u *ExamplePostgresRepo) GetAllExampleIds() []int32 {
-	rows, err := u.PostgresPool.Query("SELECT id FROM users WHERE is_bot=false")
+func (p *ExamplePostgresRepo) GetAllExampleIds() []int32 {
+	rows, err := p.PostgresPool.Query("SELECT id FROM users WHERE is_bot=false")
 	var users []int32
 	switch err {
 	case nil:
 	case pgx.ErrNoRows:
 		return users
 	default:
-		pkg.GetLog().Error("Error in GetAllExamples", err)
+		p.log.Error("Error in GetAllExamples", err)
 		return users
 	}
 
 	if rows == nil {
-		pkg.GetLog().Error("Error in GetAllExamples: rows is empty")
+		p.log.Error("Error in GetAllExamples: rows is empty")
 		return users
 	}
 
 	for rows.Next() {
 		var u int32
 		if e := rows.Scan(&u); e != nil {
-			pkg.GetLog().Error(e)
+			p.log.Error(e)
 		}
 		users = append(users, u)
 	}

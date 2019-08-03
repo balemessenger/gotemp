@@ -5,50 +5,43 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"{{ProjectName}}/pkg"
 	"math/rand"
-	"sync"
 	"time"
 )
 
 type KafkaPubSub struct {
+	log      *pkg.Logger
 	consumer *kafka.Consumer
 }
 
-var (
-	once        sync.Once
-	kafkaPubSub *KafkaPubSub
-)
-
-func GetKafka() *KafkaPubSub {
-	once.Do(func() {
-		kafkaPubSub = NewKafka()
-	})
-	return kafkaPubSub
+type KafkaOption struct {
+	Servers     string
+	GroupId     string
+	OffsetReset string
 }
 
-func NewKafka() *KafkaPubSub {
-	return &KafkaPubSub{}
-}
-
-func (pb *KafkaPubSub) Initialize(servers string, groupId string, offsetReset string) {
+func NewKafka(log *pkg.Logger, option KafkaOption) *KafkaPubSub {
 	rand.Seed(time.Now().Unix())
 	var gId = fmt.Sprintf("groupid_%d", rand.Int31())
-	if groupId != "random" {
-		gId = groupId
+	if option.GroupId != "random" {
+		gId = option.GroupId
 	}
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": servers,
+		"bootstrap.servers": option.Servers,
 		"group.id":          gId,
-		"auto.offset.reset": offsetReset,
+		"auto.offset.reset": option.OffsetReset,
 	})
 
 	if err != nil {
-		pkg.GetLog().Fatal(err)
+		log.Fatal(err)
 	}
-	pb.consumer = consumer
+	return &KafkaPubSub{
+		log:      log,
+		consumer: consumer,
+	}
 }
 
 func (pb *KafkaPubSub) Subscribe(topics []string) error {
-	pkg.GetLog().Debug("Subscribe to kafka topic:", topics)
+	pb.log.Debug("Subscribe to kafka topic:", topics)
 	return pb.consumer.SubscribeTopics(topics, nil)
 }
 

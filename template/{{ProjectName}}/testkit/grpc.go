@@ -3,7 +3,7 @@ package testkit
 import (
 	"google.golang.org/grpc"
 	api "{{ProjectName}}/api/proto/src"
-	"{{ProjectName}}/pkg"
+	"log"
 	"sync"
 )
 
@@ -32,7 +32,7 @@ func (c *GrpcClient) Initialize(address string){
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
-		pkg.GetLog().Fatalf("did not connect: %v", err)
+		log.Fatal("did not connect: %v", err)
 	}
 	client := api.NewExampleClient(conn)
 	c.ExampleClient = client

@@ -3,7 +3,6 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"{{ProjectName}}/pkg"
-	"sync"
 )
 
 type Server struct {
@@ -12,37 +11,30 @@ type Server struct {
 	handler    *Handler
 }
 
-var (
-	serverOnce sync.Once
-	server     *Server
-)
-
-func New() *Server {
-	e := gin.Default()
-	s := Server{engine: e, handler: &Handler{}}
-	return &s
+type Option struct {
+	Address string
+	User    string
+	Pass    string
 }
 
-func GetGin() *Server {
-	serverOnce.Do(func() {
-		server = New()
-	})
-	return server
-}
-
-func (s *Server) Initialize(address string, user string, pass string) {
-	auth := s.engine.Group("/admin", gin.BasicAuth(gin.Accounts{
-		user: pass,
+func New(log *pkg.Logger, option Option) *Server {
+	engine := gin.Default()
+	auth := engine.Group("/admin", gin.BasicAuth(gin.Accounts{
+		option.User: option.Pass,
 		//"user2": "pass2", // user:user2 password:pass2
 	}))
-	s.authorized = auth
+	s := Server{
+		engine:     engine,
+		authorized: auth,
+		handler:    NewHandler(log)}
 	s.setupRouter()
-	go s.run(address)
-}
 
-func (s *Server) run(address string) {
-	err := s.engine.Run(address)
-	if err != nil {
-		pkg.GetLog().Fatal(err)
-	}
+	go func(address string) {
+		err := s.engine.Run(address)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(option.Address)
+
+	return &s
 }

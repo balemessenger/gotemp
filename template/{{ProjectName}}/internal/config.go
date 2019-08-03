@@ -7,27 +7,21 @@ import (
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"strings"
-	"sync"
-)
-
-var (
-	confOnce sync.Once
-	config   *Config
 )
 
 type Config struct {
 	ConfYaml
 }
 
-func NewConfig() *Config {
-	return &Config{}
-}
-
-func GetConfig() *Config {
-	confOnce.Do(func() {
-		config = NewConfig()
-	})
-	return config
+func NewConfig(path string) *Config {
+	conf, err := loadConf(path)
+	if err != nil {
+		log.Fatalf("Load yaml config file error: '%v'", err)
+		return nil
+	}
+	return &Config{
+		ConfYaml: conf,
+	}
 }
 
 var defaultConf = []byte(`
@@ -134,7 +128,7 @@ type SectionHttp struct {
 }
 
 // LoadConf load config from file and read in environment variables that match
-func (config *Config) LoadConf(confPath string) (ConfYaml, error) {
+func loadConf(confPath string) (ConfYaml, error) {
 	var conf ConfYaml
 
 	viper.SetConfigType("yaml")
@@ -208,13 +202,4 @@ func (config *Config) LoadConf(confPath string) (ConfYaml, error) {
 	conf.Endpoints.Http.Pass = viper.GetString("endpoints.http.pass")
 
 	return conf, nil
-}
-
-func (config *Config) Initialize(path string) {
-	var err error
-	config.ConfYaml, err = config.LoadConf(path)
-	if err != nil {
-		log.Fatalf("Load yaml config file error: '%v'", err)
-		return
-	}
 }

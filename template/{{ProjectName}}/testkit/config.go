@@ -6,8 +6,9 @@ import (
 	"os"
 )
 
-func InitTestConfig(relativePath string) {
+func InitTestConfig(relativePath string) *internal.Config{
 	configPath := fmt.Sprintf("%s/%s", os.Getenv("PWD"), relativePath)
 	fmt.Println("Config path: ", configPath)
-	internal.GetConfig().Initialize(configPath)
+	return internal.NewConfig(configPath)
 }
+

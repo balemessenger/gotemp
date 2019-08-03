@@ -2,43 +2,25 @@ package pkg
 
 import (
 	"errors"
+	"github.com/sirupsen/logrus"
 	"io"
 	"log"
 	"os"
-	"sync"
-
-	"github.com/sirupsen/logrus"
 )
 
-var (
-	logOnce sync.Once
-	logger  *Log
-)
-
-type Log struct {
+type Logger struct {
 	*logrus.Logger
 }
 
-func NewLog() *Log {
-	return &Log{}
-}
-
-func GetLog() *Log {
-	logOnce.Do(func() {
-		logger = NewLog()
-	})
-	return logger
-}
-
-func (l *Log) Initialize(level string) {
-	var err error
-	l.Logger, err = l.stdoutInit(level)
+func NewLog(level string) *Logger {
+	l, err := stdoutInit(level)
 	if err != nil {
 		log.Panic(err)
 	}
+	return &Logger{l}
 }
 
-func (Log) stdoutInit(lvl string) (*logrus.Logger, error) {
+func stdoutInit(lvl string) (*logrus.Logger, error) {
 	var err error
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.TextFormatter{

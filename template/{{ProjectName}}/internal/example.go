@@ -2,33 +2,29 @@ package internal
 
 import (
 	"{{ProjectName}}/internal/processor"
-	"sync"
+	"{{ProjectName}}/internal/repositories"
+	"{{ProjectName}}/pkg"
+	"{{ProjectName}}/pkg/pubsub"
 )
 
 type ExampleProcessor struct {
+	log    *pkg.Logger
+	db     repositories.Database
+	pubsub pubsub.PubSub
 	processor.Processor
 	exampleChannel chan string
 }
 
-var (
-	exampleOnce sync.Once
-	example     *ExampleProcessor
-)
-
-func GetExample() *ExampleProcessor {
-	exampleOnce.Do(func() {
-		example = NewExample()
-	})
-	return example
-}
-
-func NewExample() *ExampleProcessor {
+func NewExample(log *pkg.Logger, db repositories.Database, pubsub pubsub.PubSub) *ExampleProcessor {
 	return &ExampleProcessor{
+		log:            log,
+		db:             db,
+		pubsub:         pubsub,
 		Processor:      processor.New(),
 		exampleChannel: make(chan string)}
 }
 
-func (g *ExampleProcessor) Initialize(size int) {
+func (g *ExampleProcessor) Start(size int) {
 	g.RunPool(g.Processor, size)
 }
 
@@ -45,4 +41,5 @@ func (g *ExampleProcessor) Worker() {
 
 func (g *ExampleProcessor) process(envelop string) {
 	//Write your login here
+	g.log.Info("process")
 }

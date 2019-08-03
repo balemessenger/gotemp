@@ -2,55 +2,62 @@ package cmd
 
 import (
 	"fmt"
-	{{ if Grpc }}
 	"{{ProjectName}}/api/grpc"
-	{{ end }}
+
 	"{{ProjectName}}/api/http"
 	"{{ProjectName}}/internal"
 	"{{ProjectName}}/internal/server"
 	"{{ProjectName}}/pkg"
-	{{ if Postgres }}
-	"{{ProjectName}}/pkg/postgres"
-	{{ end }}
-    {{ if Kafka }}
+
+	"{{ProjectName}}/internal/postgres"
+
 	"{{ProjectName}}/pkg/pubsub"
-	{{ end }}
 )
 
-func initialize() {
+func initialize() *pkg.Logger {
 	fmt.Println("{{ProjectName}} build version:", pkg.BuildVersion)
 	fmt.Println("{{ProjectName}} build time:", pkg.BuildTime)
-	internal.GetConfig().Initialize("")
-	pkg.GetLog().Initialize(internal.GetConfig().Log.Level)
-	{{ if Postgres }}
-	postgres.GetPostgres().Initialize(
-		internal.GetConfig().Postgres.Host,
-		internal.GetConfig().Postgres.User,
-		internal.GetConfig().Postgres.Pass,
-		internal.GetConfig().Postgres.DB)
-	{{ end }}
-	{{ if Kafka }}
-	pubsub.GetKafka().Initialize(
-		internal.GetConfig().Kafka.BootstrapServers,
-		internal.GetConfig().Kafka.GroupId,
-		internal.GetConfig().Kafka.AutoOffsetReset)
-	{{ end }}
-	{{ if Grpc }}
-	grpc.GetGrpc().Initialize(internal.GetConfig().Endpoints.Grpc.Address)
-	{{ end }}
-	http.GetGin().Initialize(
-		internal.GetConfig().Endpoints.Http.Address,
-		internal.GetConfig().Endpoints.Http.User,
-		internal.GetConfig().Endpoints.Http.Pass)
-	pkg.GetPrometheus().Initialize(internal.GetConfig().Prometheus.Port)
+	conf := internal.NewConfig("")
+	log := pkg.NewLog(conf.Log.Level)
+
+	db := postgres.New(log, postgres.Option{
+		Host: conf.Postgres.Host,
+		User: conf.Postgres.User,
+		Pass: conf.Postgres.Pass,
+		Db:   conf.Postgres.DB,
+	})
+
+	kafka := pubsub.NewKafka(
+		log,
+		pubsub.KafkaOption{
+			Servers:     conf.Kafka.BootstrapServers,
+			GroupId:     conf.Kafka.GroupId,
+			OffsetReset: conf.Kafka.AutoOffsetReset,
+		})
+
+	grpc.New(log, grpc.Option{
+		Address: conf.Endpoints.Grpc.Address,
+	})
+
+	http.New(
+		log,
+		http.Option{
+			Address: conf.Endpoints.Http.Address,
+			User:    conf.Endpoints.Http.User,
+			Pass:    conf.Endpoints.Http.Pass,
+		})
+
+	pkg.NewPrometheus(log, conf.Prometheus.Port)
 
 	//Initialize main logic
-	internal.GetExample().Initialize(internal.GetConfig().Core.WorkPoolSize)
+	internal.NewExample(log, db, kafka).Start(conf.Core.WorkPoolSize)
+
+	return log
 }
 
 func Main() {
-	initialize()
-	pkg.GetLog().Info("Hello {{ProjectName}}")
+	log := initialize()
+	log.Info("Hello {{ProjectName}}")
 	server.New().Run()
 	pkg.Signal.Wait()
 }
