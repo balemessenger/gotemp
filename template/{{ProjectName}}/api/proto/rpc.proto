@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package ai.bale.{{ProjectName}};
+
+service Example {
+    rpc RegisterExample (ExampleRequest) returns (ResponseVoid) {
+    }
+}
+
+message ExampleRequest {
+    int64 auth_id = 1;
+    int64 user_id = 2;
+}
+
+message ResponseVoid {
+}
+

@@ -1,0 +1,22 @@
+image: docker.bale.ai/opr/golang:1.12.6-stretch
+
+stages:
+  - build
+  - test
+  - deploy
+
+cache:
+  - /go/bin
+
+build-my-project:
+  stage: build
+  script:
+    - make getdeps
+    - make build
+  tags: [docker-go]
+
+test-my-project:
+  stage: test
+  script:
+    - make test
+  tags: [docker-go]
