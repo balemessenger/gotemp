@@ -2,6 +2,7 @@
     "ProjectName": "",
     "Description": "",
     "Postgres" : true,
+    "Cassandra" : true,
     "Kafka" : true,
     "Grpc" : true,
     "Http" : true

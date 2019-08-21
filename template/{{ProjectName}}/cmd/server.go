@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 	"{{ProjectName}}/api/grpc"
+	"{{ProjectName}}/internal/cassandra"
 
 	"{{ProjectName}}/api/http"
 	"{{ProjectName}}/internal"
@@ -25,6 +27,17 @@ func initialize() *pkg.Logger {
 		User: conf.Postgres.User,
 		Pass: conf.Postgres.Pass,
 		Db:   conf.Postgres.DB,
+	})
+
+	_ = cassandra.New(log, cassandra.Option{
+		Hosts:       conf.Cassandra.Hosts,
+		Password:    conf.Cassandra.Password,
+		Username:    conf.Cassandra.Username,
+		KeySpace:    conf.Cassandra.KeySpace,
+		Consistency: conf.Cassandra.Consistency,
+		PageSize:    conf.Cassandra.PageSize,
+		Timeout:     time.Duration(conf.Cassandra.Timeout),
+		DataCenter:  conf.Cassandra.DataCenter,
 	})
 
 	kafka := pubsub.NewKafka(

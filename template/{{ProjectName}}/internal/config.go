@@ -37,6 +37,18 @@ postgres:
   pass: ""
   batch_count: 5
 {{ end }}
+{{ if Cassandra }}
+cassandra:
+  hosts: ["127.0.0.1"]
+  port: 9042
+  user: ""
+  password: ""
+  keyspace: "test"
+  consistency: "LOCAL_ONE"
+  pagesize: 5000
+  timeout: 16000
+  datacenter: ""
+{{ end }}
 {{ if Kafka }}
 kafka:
   bootstrap_servers: ""
@@ -64,7 +76,10 @@ type ConfYaml struct {
 	{{ if Postgres }}
 	Postgres   SectionPostgres   `yaml:"postgres"`
 	{{ end }}
-    {{ if Kafka }}
+	{{ if Cassandra }}
+	Cassandra SectionCassandra `yaml:"cassandra"`
+	{{ end }}
+	{{ if Kafka }}
 	Kafka      SectionKafka      `yaml:"kafka"`
 	{{ end }}
 	Prometheus SectionPrometheus `yaml:"prometheus"`
@@ -87,6 +102,20 @@ type SectionPostgres struct {
 	User       string `yaml:"user"`
 	Pass       string `yaml:"pass"`
 	BatchCount int    `yaml:"batch_count"`
+}
+{{ end }}
+
+{{ if Cassandra }}
+type SectionCassandra struct {
+	Hosts       []string `yaml:"hosts"`
+	Port        int      `yaml:"port"`
+	Username    string   `yaml:"user"`
+	Password    string   `yaml:"password"`
+	KeySpace    string   `yaml:"keyspace"`
+	Consistency string   `yaml:"consistency"`
+	PageSize    int      `yaml:"pagesize"`
+	Timeout     int64    `yaml:"timeout"`
+	DataCenter  string   `yaml:"datacenter"`
 }
 {{ end }}
 
@@ -177,6 +206,19 @@ func loadConf(confPath string) (ConfYaml, error) {
 	conf.Postgres.User = viper.GetString("postgres.user")
 	conf.Postgres.Pass = viper.GetString("postgres.pass")
 	conf.Postgres.BatchCount = viper.GetInt("postgres.batch_count")
+	{{ end }}
+
+	{{ if Cassandra }}
+	// Cassandra
+	conf.Cassandra.Hosts = viper.GetStringSlice("cassandra.hosts")
+	conf.Cassandra.Port = viper.GetInt("cassandra.port")
+	conf.Cassandra.Username = viper.GetString("cassandra.user")
+	conf.Cassandra.Password = viper.GetString("cassandra.password")
+	conf.Cassandra.KeySpace = viper.GetString("cassandra.keyspace")
+	conf.Cassandra.Consistency = viper.GetString("cassandra.consistency")
+	conf.Cassandra.PageSize = viper.GetInt("cassandra.pagesize")
+	conf.Cassandra.Timeout = viper.GetInt64("cassandra.timeout")
+	conf.Cassandra.DataCenter = viper.GetString("cassandra.datacenter")
 	{{ end }}
 
 	{{ if Kafka }}
