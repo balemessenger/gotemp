@@ -18,10 +18,12 @@ checks:
 	@(env bash $(PWD)/buildscripts/checkdeps.sh)
 
 getdeps:
-	@mkdir -p ${GOPATH}/bin
-	@which golint 1>/dev/null || (echo "Installing golint" && go get -u golang.org/x/lint/golint)
-	@which staticcheck 1>/dev/null || (echo "Installing staticcheck" && wget --quiet -O ${GOPATH}/bin/staticcheck https://github.com/dominikh/go-tools/releases/download/2019.1/staticcheck_${GOOS}_amd64 && chmod +x ${GOPATH}/bin/staticcheck)
-	@which misspell 1>/dev/null || (echo "Installing misspell" && wget --quiet https://github.com/client9/misspell/releases/download/v0.3.4/misspell_0.3.4_${GOOSALT}_64bit.tar.gz && tar xf misspell_0.3.4_${GOOSALT}_64bit.tar.gz && mv misspell ${GOPATH}/bin/misspell && chmod +x ${GOPATH}/bin/misspell && rm -f misspell_0.3.4_${GOOSALT}_64bit.tar.gz)
+	@echo "Running $@"
+	@(env bash $(PWD)/scripts/installprotoc.sh $(arg))
+# 	@mkdir -p ${GOPATH}/bin
+# 	@which golint 1>/dev/null || (echo "Installing golint" && go get -u golang.org/x/lint/golint)
+# 	@which staticcheck 1>/dev/null || (echo "Installing staticcheck" && wget --quiet -O ${GOPATH}/bin/staticcheck https://github.com/dominikh/go-tools/releases/download/2019.1/staticcheck_${GOOS}_amd64 && chmod +x ${GOPATH}/bin/staticcheck)
+# 	@which misspell 1>/dev/null || (echo "Installing misspell" && wget --quiet https://github.com/client9/misspell/releases/download/v0.3.4/misspell_0.3.4_${GOOSALT}_64bit.tar.gz && tar xf misspell_0.3.4_${GOOSALT}_64bit.tar.gz && mv misspell ${GOPATH}/bin/misspell && chmod +x ${GOPATH}/bin/misspell && rm -f misspell_0.3.4_${GOOSALT}_64bit.tar.gz)
 
 verifiers: getdeps vet fmt lint staticcheck spelling
 

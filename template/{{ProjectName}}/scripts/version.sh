@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-echo 0.0.0
+echo 0.0-1
