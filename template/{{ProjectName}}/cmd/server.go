@@ -5,6 +5,7 @@ import (
 	"time"
 	"{{ProjectName}}/api/grpc"
 	"{{ProjectName}}/internal/cassandra"
+	"{{ProjectName}}/internal/processor"
 
 	"{{ProjectName}}/api/http"
 	"{{ProjectName}}/internal"
@@ -63,7 +64,7 @@ func initialize() *pkg.Logger {
 	pkg.NewPrometheus(log, conf.Prometheus.Port)
 
 	//Initialize main logic
-	internal.NewExample(log, db, kafka).Start(conf.Core.WorkPoolSize)
+	processor.NewExample(log, db, kafka).Start(conf.Core.WorkPoolSize)
 
 	return log
 }

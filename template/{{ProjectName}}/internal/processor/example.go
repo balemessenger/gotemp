@@ -1,9 +1,9 @@
-package internal
+package processor
 
 import (
-	"{{ProjectName}}/internal/processor"
 	"{{ProjectName}}/internal/repositories"
 	"{{ProjectName}}/pkg"
+	processor2 "{{ProjectName}}/pkg/processor"
 	"{{ProjectName}}/pkg/pubsub"
 )
 
@@ -11,7 +11,7 @@ type ExampleProcessor struct {
 	log    *pkg.Logger
 	db     repositories.Database
 	pubsub pubsub.PubSub
-	processor.Processor
+	processor2.Processor
 	exampleChannel chan string
 }
 
@@ -20,7 +20,7 @@ func NewExample(log *pkg.Logger, db repositories.Database, pubsub pubsub.PubSub)
 		log:            log,
 		db:             db,
 		pubsub:         pubsub,
-		Processor:      processor.New(),
+		Processor:      processor2.New(),
 		exampleChannel: make(chan string)}
 }
 
