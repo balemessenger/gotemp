@@ -1,47 +1,44 @@
 package postgres
 
 import (
-	"github.com/jackc/pgx"
-	"{{ProjectName}}/internal/repositories"
 	"{{ProjectName}}/pkg"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"fmt"
 )
 
+type Example struct {
+	gorm.Model
+	UserId   int `gorm:"primary_key"`
+	Username string
+	Password string
+}
+
 type Database struct {
-	log          *pkg.Logger
-	PostgresPool *pgx.ConnPool
-	Example      repositories.ExampleRepo
+	log *pkg.Logger
+	db  *gorm.DB
 }
 
 type Option struct {
 	Host string
+	Port string
 	User string
 	Pass string
 	Db   string
 }
 
 func New(log *pkg.Logger, option Option) *Database {
-	var err error
-	connPoolConfig := pgx.ConnPoolConfig{
-		ConnConfig: pgx.ConnConfig{
-			Host:     option.Host,
-			User:     option.User,
-			Password: option.Pass,
-			Database: option.Db,
-		},
-		MaxConnections: 10,
-	}
-
-	postgresPool, err := pgx.NewConnPool(connPoolConfig)
+	url := fmt.Sprintf("host=%v port=%v user=%v dbname=%v password=%v sslmode=disable", option.Host, option.Port, option.User, option.Db, option.Pass)
+	db, err := gorm.Open("postgres", url)
 	if err != nil {
-		log.Fatal("Unable to create connection pool", "error", err)
+		log.Fatal("failed to connect database", err)
 	}
-	return &Database{
-		log:          log,
-		PostgresPool: postgresPool,
-		Example:      NewExampleRepo(log, postgresPool),
-	}
-}
+	db.LogMode(true)
+	// Migrate the schema
+	db.AutoMigrate(&Example{})
 
-func (d *Database) GetExampleRepo() repositories.ExampleRepo {
-	return d.Example
+	return &Database{
+		log: log,
+		db:  db,
+	}
 }
