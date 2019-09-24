@@ -3,9 +3,9 @@ package pubsub
 import (
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"{{ProjectName}}/pkg"
 	"math/rand"
 	"time"
+	"{{ProjectName}}/pkg"
 )
 
 type KafkaPubSub struct {

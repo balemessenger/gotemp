@@ -3,14 +3,13 @@ package test
 import (
 	"bytes"
 	"encoding/json"
-	myhttp "{{ProjectName}}/api/http"
-	"log"
-
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"testing"
+	myhttp "{{ProjectName}}/api/http"
 )
 
 func TestHealthRoute(t *testing.T) {

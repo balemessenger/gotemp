@@ -3,11 +3,11 @@ package test
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
+	"testing"
+	"time"
 	"{{ProjectName}}/api/grpc"
 	api "{{ProjectName}}/api/proto/src"
 	"{{ProjectName}}/testkit"
-	"testing"
-	"time"
 )
 
 func TestExampleGrpc(t *testing.T) {
