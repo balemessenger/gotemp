@@ -3,20 +3,17 @@ package grpc
 import (
 	"context"
 	api "{{ProjectName}}/api/proto/src"
-	"{{ProjectName}}/pkg"
+	"{{ProjectName}}/internal/service"
 )
 
 type Handler struct {
-	log *pkg.Logger
+	service *service.ExampleServiceImpl
 }
 
-func NewHandler(log *pkg.Logger) *Handler {
-	return &Handler{log: log}
+func NewHandler(service *service.ExampleServiceImpl) *Handler {
+	return &Handler{service: service}
 }
 
-func (h *Handler) RegisterExample(cxt context.Context, req *api.ExampleRequest) (*api.ResponseVoid, error) {
-	if req.UserId == 10 {
-		return nil, Errors.Internal
-	}
-	return &api.ResponseVoid{}, nil
+func (h *Handler) RpcExample(ctx context.Context, req *api.ExampleRequest) (*api.ResponseVoid, error) {
+	return h.service.RpcExample(ctx, req)
 }

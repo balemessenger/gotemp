@@ -20,13 +20,13 @@ func setup() {
 	Conf = testkit.InitTestConfig("config.yaml")
 	log := pkg.NewLog("DEBUG")
 
-	grpc2.New(log, grpc2.Option{
+	grpc2.NewGrpcServer(log, grpc2.Option{
 		Address: Conf.Endpoints.Grpc.Address,
 	})
 
 	testkit.GetGrpcClient().Initialize(Conf.Endpoints.Grpc.Address)
 
-	http.New(
+	http.NewHttpServer(
 		log,
 		http.Option{
 			Address: Conf.Endpoints.Http.Address,

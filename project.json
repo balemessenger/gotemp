@@ -1,6 +1,7 @@
 {
     "ProjectName": "",
     "Description": "",
+    "Cassandra": true,
     "Postgres" : true,
     "Cassandra" : true,
     "Kafka" : true,

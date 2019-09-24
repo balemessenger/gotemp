@@ -28,6 +28,19 @@ var defaultConf = []byte(`
 core:
   mode: "release" # release, debug, test
   work_pool_size: 1000
+{{ if Cassandra }}
+cassandra:
+  hosts: ["127.0.0.1"]
+  port: 9042
+  user: ""
+  password: ""
+  keyspace: "test"
+  consistency: "LOCAL_ONE"
+  pagesize: 5000
+  timeout: 16000
+  datacenter: ""
+  partition_size: 10
+{{ end }}
 {{ if Postgres }}
 postgres:
   host: ""
@@ -73,6 +86,9 @@ endpoints:
 
 type ConfYaml struct {
 	Core       SectionCore       `yaml:"core"`
+	{{ if Cassandra }}
+	Cassandra SectionCassandra 	 `yaml:cassandra`
+	{{ end }}
 	{{ if Postgres }}
 	Postgres   SectionPostgres   `yaml:"postgres"`
 	{{ end }}
@@ -93,6 +109,20 @@ type SectionCore struct {
 	WorkPoolSize int    `yaml:"work_pool_size"`
 }
 
+{{ if Cassandra }}
+type SectionCassandra struct {
+	Hosts         []string `yaml:"hosts"`
+	Port          int      `yaml:"port"`
+	Username      string   `yaml:"user"`
+	Password      string   `yaml:"password"`
+	KeySpace      string   `yaml:"keyspace"`
+	Consistency   string   `yaml:"consistency"`
+	PageSize      int      `yaml:"pagesize"`
+	Timeout       int64    `yaml:"timeout"`
+	DataCenter    string   `yaml:"datacenter"`
+	PartitionSize int32    `yaml:"partition_size"`
+}
+{{ end }}
 {{ if Postgres }}
 // SectionPostgres is sub section of config.
 type SectionPostgres struct {
@@ -198,6 +228,19 @@ func loadConf(confPath string) (ConfYaml, error) {
 	conf.Core.Mode = viper.GetString("core.mode")
 	conf.Core.WorkPoolSize = viper.GetInt("core.work_pool_size")
 
+	{{ if Cassandra }}
+	// Cassandra
+	conf.Cassandra.Hosts = viper.GetStringSlice("cassandra.hosts")
+	conf.Cassandra.Port = viper.GetInt("cassandra.port")
+	conf.Cassandra.Username = viper.GetString("cassandra.user")
+	conf.Cassandra.Password = viper.GetString("cassandra.password")
+	conf.Cassandra.KeySpace = viper.GetString("cassandra.keyspace")
+	conf.Cassandra.Consistency = viper.GetString("cassandra.consistency")
+	conf.Cassandra.PageSize = viper.GetInt("cassandra.pagesize")
+	conf.Cassandra.Timeout = viper.GetInt64("cassandra.timeout")
+	conf.Cassandra.DataCenter = viper.GetString("cassandra.datacenter")
+	conf.Cassandra.PartitionSize = viper.GetInt32("cassandra.partition_size")
+	{{ end }}
 	{{ if Postgres }}
 	// Postgres
 	conf.Postgres.Host = viper.GetString("postgres.host")

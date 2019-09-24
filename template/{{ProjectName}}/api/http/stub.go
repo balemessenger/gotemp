@@ -17,22 +17,22 @@ type Option struct {
 	Pass    string
 }
 
-func New(log *pkg.Logger, option Option) *Server {
+func NewHttpServer(option Option) *Server {
 	engine := gin.Default()
 	auth := engine.Group("/admin", gin.BasicAuth(gin.Accounts{
 		option.User: option.Pass,
-		//"user2": "pass2", // user:user2 password:pass2
 	}))
 	s := Server{
 		engine:     engine,
 		authorized: auth,
-		handler:    NewHandler(log)}
+		handler:    NewHttpHandler(),
+	}
 	s.setupRouter()
 
 	go func(address string) {
 		err := s.engine.Run(address)
 		if err != nil {
-			log.Fatal(err)
+			pkg.Logger.Fatal(err)
 		}
 	}(option.Address)
 

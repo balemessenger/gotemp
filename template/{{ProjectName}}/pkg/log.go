@@ -8,16 +8,18 @@ import (
 	"os"
 )
 
-type Logger struct {
+var Logger *Log
+
+type Log struct {
 	*logrus.Logger
 }
 
-func NewLog(level string) *Logger {
+func NewLog(level string) *Log {
 	l, err := stdoutInit(level)
 	if err != nil {
 		log.Panic(err)
 	}
-	return &Logger{l}
+	return &Log{l}
 }
 
 func stdoutInit(lvl string) (*logrus.Logger, error) {

@@ -1,4 +1,4 @@
-package metric
+package metrics
 
 import (
 	"github.com/patrickmn/go-cache"
