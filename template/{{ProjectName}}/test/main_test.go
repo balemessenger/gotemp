@@ -1,16 +1,15 @@
 package test
 
 import (
-	grpc2 "{{ProjectName}}/api/grpc"
-	"{{ProjectName}}/internal"
-
-	"{{ProjectName}}/api/http"
-	"{{ProjectName}}/pkg"
-	"{{ProjectName}}/testkit"
 	"math/rand"
 	"os"
 	"testing"
 	"time"
+	grpc2 "{{ProjectName}}/api/grpc"
+	"{{ProjectName}}/api/http"
+	"{{ProjectName}}/internal"
+	"{{ProjectName}}/pkg"
+	"{{ProjectName}}/testkit"
 )
 
 var Conf *internal.Config

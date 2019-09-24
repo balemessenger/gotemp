@@ -25,7 +25,7 @@ func NewExample(log *pkg.Logger, db repositories.Database, pubsub pubsub.PubSub)
 }
 
 func (g *ExampleProcessor) Start(size int) {
-	g.RunPool(g.Processor, size)
+	g.RunPool(g, size)
 }
 
 func (g *ExampleProcessor) Tell(envelop string) {
