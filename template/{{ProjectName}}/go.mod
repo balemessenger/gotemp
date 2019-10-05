@@ -5,7 +5,6 @@ go 1.12
 require (
 	github.com/confluentinc/confluent-kafka-go v1.0.0
 	github.com/gin-gonic/gin v1.4.0
-	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/gocql/gocql v0.0.0-20190810123941-df4b9cc33030
 	github.com/gogo/protobuf v1.2.1
 	github.com/jackc/pgx v3.5.0+incompatible

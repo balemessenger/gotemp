@@ -4,74 +4,92 @@ import (
 	"fmt"
 	"time"
 	"{{ProjectName}}/api/grpc"
-	"{{ProjectName}}/internal/cassandra"
-	"{{ProjectName}}/internal/processor"
-
 	"{{ProjectName}}/api/http"
 	"{{ProjectName}}/internal"
-	"{{ProjectName}}/internal/server"
+	"{{ProjectName}}/internal/service"
 	"{{ProjectName}}/pkg"
-
-	"{{ProjectName}}/internal/postgres"
-
+	"{{ProjectName}}/pkg/db"
+	{{ if Kafka }}
 	"{{ProjectName}}/pkg/pubsub"
+	{{ end }}
 )
 
-func initialize() *pkg.Logger {
+type Server struct {
+	isReady chan bool
+}
+
+func NewServer() *Server {
 	fmt.Println("{{ProjectName}} build version:", pkg.BuildVersion)
 	fmt.Println("{{ProjectName}} build time:", pkg.BuildTime)
 	conf := internal.NewConfig("")
-	log := pkg.NewLog(conf.Log.Level)
+	pkg.NewLog(conf.Log.Level)
 
-	db := postgres.New(log, postgres.Option{
+	{{ if Postgres }}
+	_ = db.NewPostgres(db.PostgresConfig{
 		Host: conf.Postgres.Host,
+		Port: conf.Postgres.Port,
 		User: conf.Postgres.User,
 		Pass: conf.Postgres.Pass,
 		Db:   conf.Postgres.DB,
 	})
-
-	_ = cassandra.New(log, cassandra.Option{
-		Hosts:       conf.Cassandra.Hosts,
-		Password:    conf.Cassandra.Password,
-		Username:    conf.Cassandra.Username,
-		KeySpace:    conf.Cassandra.KeySpace,
-		Consistency: conf.Cassandra.Consistency,
-		PageSize:    conf.Cassandra.PageSize,
-		Timeout:     time.Duration(conf.Cassandra.Timeout),
-		DataCenter:  conf.Cassandra.DataCenter,
+	{{ end }}
+	{{ if Cassandra }}
+	_ = db.NewCassandra(db.CassConfig{
+		Hosts:         conf.Cassandra.Hosts,
+		Port:          conf.Cassandra.Port,
+		Password:      conf.Cassandra.Password,
+		Username:      conf.Cassandra.Username,
+		KeySpace:      conf.Cassandra.KeySpace,
+		Consistency:   conf.Cassandra.Consistency,
+		PageSize:      conf.Cassandra.PageSize,
+		Timeout:       time.Duration(conf.Cassandra.Timeout) * time.Millisecond,
+		DataCenter:    conf.Cassandra.DataCenter,
+		PartitionSize: conf.Cassandra.PartitionSize,
 	})
-
-	kafka := pubsub.NewKafka(
-		log,
+	{{ end }}
+	{{ if Kafka }}
+	_ = pubsub.NewKafka(
 		pubsub.KafkaOption{
 			Servers:     conf.Kafka.BootstrapServers,
 			GroupId:     conf.Kafka.GroupId,
 			OffsetReset: conf.Kafka.AutoOffsetReset,
 		})
-
-	grpc.New(log, grpc.Option{
+	{{ end }}
+	// TODO: Init repositories here
+	srv := service.NewExampleService() // Inject dependencies here
+	{{ if Grpc }}
+	grpc.NewGrpcServer(srv, grpc.Option{
 		Address: conf.Endpoints.Grpc.Address,
 	})
+	{{ end }}
 
-	http.New(
-		log,
+	http.NewHttpServer(
 		http.Option{
 			Address: conf.Endpoints.Http.Address,
 			User:    conf.Endpoints.Http.User,
 			Pass:    conf.Endpoints.Http.Pass,
 		})
 
-	pkg.NewPrometheus(log, conf.Prometheus.Port)
+	pkg.NewPrometheus(conf.Prometheus.Port)
 
-	//Initialize main logic
-	processor.NewExample(log, db, kafka).Start(conf.Core.WorkPoolSize)
+	return &Server{
+		isReady: make(chan bool),
+	}
+}
 
-	return log
+func (s *Server) Run() bool {
+	go s.start()
+	return <-s.isReady
+}
+
+func (s *Server) start() {
+	// Write your entry point
+	s.isReady <- true
 }
 
 func Main() {
-	log := initialize()
-	log.Info("Hello {{ProjectName}}")
-	server.New().Run()
+	server := NewServer()
+	pkg.Logger.Info("Hello {{ProjectName}}")
+	server.Run()
 	pkg.Signal.Wait()
 }

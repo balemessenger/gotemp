@@ -1,22 +1,46 @@
-image: docker.bale.ai/opr/golang:1.12.6-stretch
+image: docker.bale.ai/opr/gobase:1.26
+
+before_script:
+  - mkdir -p .cache
+  - export GOPATH="$CI_PROJECT_DIR/.cache"
 
 stages:
-  - build
   - test
+  - build
   - deploy
 
 cache:
-  - /go/bin
+  key: golang-{{ProjectName}}
+  paths:
+    - .cache
 
-build-my-project:
-  stage: build
-  script:
-    - make getdeps
-    - make build
-  tags: [docker-go]
-
-test-my-project:
+test:
   stage: test
   script:
     - make test
-  tags: [docker-go]
+  tags: [docker]
+
+build:
+  only:
+    - master
+  stage: build
+  script:
+    - mkdir -p .cache
+    - export GOPATH="$CI_PROJECT_DIR/.cache"
+    - make build BUILD_NUMBER=$CI_PIPELINE_ID
+  artifacts:
+    paths:
+      - build/release/{{ProjectName}}_`scripts/version.sh`-$CI_PIPELINE_ID
+    expire_in: 1 day
+  tags: [docker]
+
+
+deploy:
+  only:
+    - master
+  stage: deploy
+  script:
+    - git tag `scripts/version.sh`-$CI_PIPELINE_ID
+    - git push "https://${GITLAB_CICD_USERNAME}:${GITLAB_CICD_TOKEN}@anbar.bale.ai/${CI_PROJECT_PATH}.git" --tags
+    - make docker BUILD_NUMBER=$CI_PIPELINE_ID
+  tags: [shell]

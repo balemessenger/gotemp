@@ -2,9 +2,10 @@ package grpc
 
 import (
 	"google.golang.org/grpc"
-	api "{{ProjectName}}/api/proto/src"
-	"{{ProjectName}}/pkg"
 	"net"
+	api "{{ProjectName}}/api/proto/src"
+	"{{ProjectName}}/internal/service"
+	"{{ProjectName}}/pkg"
 )
 
 type Server struct{}
@@ -13,20 +14,20 @@ type Option struct {
 	Address string
 }
 
-func New(log *pkg.Logger, option Option) *Server {
-	go listenGrpc(log, option.Address)
+func NewGrpcServer(service *service.ExampleServiceImpl, option Option) *Server {
+	go listenGrpc(service, option.Address)
 	return &Server{}
 }
 
-func listenGrpc(log *pkg.Logger, address string) {
+func listenGrpc(service *service.ExampleServiceImpl, address string) {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		pkg.Logger.Fatalf("failed to listen: %v", err)
 	}
-	log.Info("Start listening on address: ", address)
+	pkg.Logger.Info("Start listening on address: ", address)
 	s := grpc.NewServer()
-	api.RegisterExampleServer(s, NewHandler(log))
+	api.RegisterExampleServer(s, NewHandler(service))
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		pkg.Logger.Fatalf("failed to serve: %v", err)
 	}
 }

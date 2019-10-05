@@ -3,13 +3,12 @@ package pubsub
 import (
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"{{ProjectName}}/pkg"
 	"math/rand"
 	"time"
+	"{{ProjectName}}/pkg"
 )
 
 type KafkaPubSub struct {
-	log      *pkg.Logger
 	consumer *kafka.Consumer
 }
 
@@ -19,7 +18,7 @@ type KafkaOption struct {
 	OffsetReset string
 }
 
-func NewKafka(log *pkg.Logger, option KafkaOption) *KafkaPubSub {
+func NewKafka(option KafkaOption) *KafkaPubSub {
 	rand.Seed(time.Now().Unix())
 	var gId = fmt.Sprintf("groupid_%d", rand.Int31())
 	if option.GroupId != "random" {
@@ -32,16 +31,15 @@ func NewKafka(log *pkg.Logger, option KafkaOption) *KafkaPubSub {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		pkg.Logger.Fatal(err)
 	}
 	return &KafkaPubSub{
-		log:      log,
 		consumer: consumer,
 	}
 }
 
 func (pb *KafkaPubSub) Subscribe(topics []string) error {
-	pb.log.Debug("Subscribe to kafka topic:", topics)
+	pkg.Logger.Debug("Subscribe to kafka topic:", topics)
 	return pb.consumer.SubscribeTopics(topics, nil)
 }
 

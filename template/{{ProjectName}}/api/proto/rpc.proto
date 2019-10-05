@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package ai.bale.{{ProjectName}};
+package ai.bale.a;
 
 service Example {
-    rpc RegisterExample (ExampleRequest) returns (ResponseVoid) {
+    rpc RpcExample (ExampleRequest) returns (ResponseVoid) {
     }
 }
 
