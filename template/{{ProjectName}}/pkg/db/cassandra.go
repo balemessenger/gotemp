@@ -6,7 +6,7 @@ import (
 	"{{ProjectName}}/pkg"
 	"strings"
 	"time"
-
+	"io/ioutil"
 	"github.com/gocql/gocql"
 )
 
@@ -76,4 +76,21 @@ func (c *CassandraDB) PrintQuery(stmt string, mp qb.M) {
 		result = strings.Replace(result, t3, key+">="+v, 1)
 	}
 	pkg.Logger.Debug(result)
+}
+
+//CreateTables(os.Getenv("PWD") + "/../assets/cassandra/example.cql")
+func (c *CassandraDB) CreateTables(paths []string) {
+	for _, path := range paths {
+		result, err := ioutil.ReadFile(path)
+		if err != nil {
+			pkg.Logger.Error(err)
+		}
+		query := string(result)
+
+		err = c.session.Query(query).Exec()
+
+		if err != nil {
+			pkg.Logger.Error(err)
+		}
+	}
 }

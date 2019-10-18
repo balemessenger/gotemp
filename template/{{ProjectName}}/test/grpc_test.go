@@ -14,12 +14,12 @@ func TestExampleGrpc(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	rsp, err := testkit.GetGrpcClient().RegisterExample(ctx, &api.ExampleRequest{AuthId: int64(10), UserId: int64(10)})
+	rsp, err := testkit.GetGrpcClient().RpcExample(ctx, &api.ExampleRequest{AuthId: int64(10), UserId: int64(10)})
 	assert.NotNil(t, err)
 	assert.Nil(t, rsp)
-	assert.Equal(t, err, grpc.Errors.Internal)
+	assert.Equal(t, err, grpc.ErrGRPCUserNotFound)
 
-	rsp, err = testkit.GetGrpcClient().RegisterExample(ctx, &api.ExampleRequest{AuthId: int64(20), UserId: int64(20)})
+	rsp, err = testkit.GetGrpcClient().RpcExample(ctx, &api.ExampleRequest{AuthId: int64(20), UserId: int64(20)})
 	assert.NotNil(t, rsp)
 	assert.Nil(t, err)
 

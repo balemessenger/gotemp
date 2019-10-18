@@ -3,14 +3,14 @@ package test
 import (
 	"bytes"
 	"encoding/json"
-	myhttp "{{ProjectName}}/api/http"
 	"log"
-
+	"{{ProjectName}}/internal/entity"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"testing"
+	"{{ProjectName}}/internal/entity"
 )
 
 func TestHealthRoute(t *testing.T) {
@@ -31,7 +31,7 @@ func TestHealthRoute(t *testing.T) {
 func TestExampleRoute(t *testing.T) {
 
 	url := fmt.Sprint("http://127.0.0.1:4040/example")
-	b, err := json.Marshal(myhttp.Example{Title: "helloTitle", Body: "helloBody"})
+	b, err := json.Marshal(entity.Example{Title: "helloTitle", Body: "helloBody"})
 
 	rsp, err := http.Post(url, "application/json", bytes.NewBuffer(b))
 	if err != nil {

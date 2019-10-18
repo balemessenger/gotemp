@@ -5,6 +5,7 @@ import (
 	"{{ProjectName}}/internal"
 
 	"{{ProjectName}}/api/http"
+	"{{ProjectName}}/internal/service"
 	"{{ProjectName}}/pkg"
 	"{{ProjectName}}/testkit"
 	"math/rand"
@@ -18,16 +19,16 @@ var Conf *internal.Config
 func setup() {
 	rand.Seed(time.Now().Unix())
 	Conf = testkit.InitTestConfig("config.yaml")
-	log := pkg.NewLog("DEBUG")
+	pkg.Logger.SetLevel(Conf.Log.Level)
 
-	grpc2.NewGrpcServer(log, grpc2.Option{
+	srv := service.NewExampleService() // Inject dependencies here
+	grpc2.NewGrpcServer(srv, grpc2.Option{
 		Address: Conf.Endpoints.Grpc.Address,
 	})
 
 	testkit.GetGrpcClient().Initialize(Conf.Endpoints.Grpc.Address)
 
 	http.NewHttpServer(
-		log,
 		http.Option{
 			Address: Conf.Endpoints.Http.Address,
 			User:    Conf.Endpoints.Http.User,

@@ -22,7 +22,7 @@ func NewServer() *Server {
 	fmt.Println("{{ProjectName}} build version:", pkg.BuildVersion)
 	fmt.Println("{{ProjectName}} build time:", pkg.BuildTime)
 	conf := internal.NewConfig("")
-	pkg.NewLog(conf.Log.Level)
+	pkg.Logger.SetLevel(conf.Log.Level)
 
 	{{ if Postgres }}
 	_ = db.NewPostgres(db.PostgresConfig{

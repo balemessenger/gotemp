@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	api "{{ProjectName}}/api/proto/src"
+	"{{ProjectName}}/internal/repositories"
 )
 
 type ExampleServiceImpl struct {
@@ -20,5 +21,9 @@ func NewExampleService() *ExampleServiceImpl {
 }
 
 func (h *ExampleServiceImpl) RpcExample(ctx context.Context, request *api.ExampleRequest) (*api.ResponseVoid, error) {
-	return &api.ResponseVoid{}, nil
+	if request.UserId == 10 {
+		return nil, repositories.ErrUserNotFound
+	} else {
+		return &api.ResponseVoid{}, nil
+	}
 }
