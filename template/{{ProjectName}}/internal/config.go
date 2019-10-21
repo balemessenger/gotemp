@@ -179,9 +179,9 @@ func loadConf(confPath string) (ConfYaml, error) {
 		}
 	} else {
 		// Search config in home directory with name ".pkg" (without extension).
-		viper.AddConfigPath("/etc/{{ProjectName}}/")
-		viper.AddConfigPath("$HOME/.{{ProjectName}}")
 		viper.AddConfigPath(".")
+		viper.AddConfigPath("$HOME/.{{ProjectName}}")
+		viper.AddConfigPath("/etc/{{ProjectName}}/")
 		viper.SetConfigName("config")
 
 		// If a config file is found, read it in.
